@@ -13,15 +13,21 @@ const SOCKET_ENDPOINT = 'localhost:3000';
 export class ChatInboxComponent implements OnInit {
   title = 'Websocket Angular client ';
   userName: string;
+  password:any;
   message: string;
   output: any[] = [];
   feedback: string;
+  userexists:string;
+  userexistlist:any[]=[];
   public show:boolean = false;
   public reg:boolean = true;
 
   constructor(private webSocketService:ChatService) { }
   ngOnInit(): void {
-    
+    this.webSocketService.listen('typing').subscribe((data) => this.updateFeedback(data));
+    this.webSocketService.listen('chat').subscribe((data) => this.updateMessage(data));
+    this.webSocketService.listen('userExists').subscribe((data)=>this.userexist(data))
+    this.webSocketService.listen('userSet').subscribe((data)=>this.currentuserlist(data))
   }
 
   messageTyping(): void {
@@ -48,9 +54,23 @@ export class ChatInboxComponent implements OnInit {
   }
 
   registerMessage(){
-    this.webSocketService.listen('typing').subscribe((data) => this.updateFeedback(data));
-    this.webSocketService.listen('chat').subscribe((data) => this.updateMessage(data));
+    //************** */
+    this.webSocketService.SetUserName(this.userName,this.password);
+    //************** */
+
     this.show=true;
     this.reg=false;
+  }
+
+  userexist(data:any){
+this.userexists=  `${data} is alredy exist please chose onther name`
+this.reg=true;
+this.show=false;
+  }
+
+  currentuserlist(data){
+    console.log(data)
+this.userexistlist=data;
+
   }
 }
